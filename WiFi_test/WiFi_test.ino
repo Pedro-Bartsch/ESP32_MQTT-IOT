@@ -14,6 +14,7 @@ void setup() {
 }
 
 void loop() {
+  // Detecta se o WiFi desconectou e tenta reconexão.
   if (WiFi.status() != WL_CONNECTED){
     connectLocalNetworks();
   }
@@ -24,7 +25,7 @@ void scanLocalNetworks(){
   int number = WiFi.scanNetworks();
   delay(500);
   if (number == -1){
-    Serial.prinln("ERRO AO ENCONTRAR REDES!");
+    Serial.println("ERRO AO ENCONTRAR REDES!");
   } else{
     Serial.printf("Número de redes encontradas: %d\n", number);
     for(int net = 0; net < number; net++){
@@ -41,5 +42,9 @@ void connectLocalNetworks(){
     Serial.print(".");
     delay(200);
   }
-  Serial.println("\nConectado com sucesso");
+  if (WiFi.status() == WL_CONNECTED){
+  Serial.println("\nConectado com sucesso!");
+  } else{
+    Serial.println("\nFalha ao conectar.");
+  }
 }
