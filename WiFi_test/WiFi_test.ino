@@ -1,5 +1,8 @@
 #include <WiFi.h>
 
+const String SSID = "nome da rede";
+const String PSWD = "senha da rede";
+
 // SSID -> Nome da rede
 // RSSI -> Intensidade do sinal
 
@@ -7,14 +10,22 @@ void scanLocalNetworks();
 
 void setup() {
   Serial.begin(115200);
-  Serial.println("Iniciando Scan de redes Wi-Fi");
   scanLocalNetworks();
+  Serial.println("Iniciando conexão com rede WiFi");
+  WiFi.begin(SSID, PSWD);
+  
+  while (WiFi.status() != WL_CONNECTED){
+    Serial.print(".");
+    delay(200);
+  }
+  Serial.println("\nConectado com sucesso");
 }
 
 void loop() {
 }
 
 void scanLocalNetworks(){
+  Serial.println("Iniciando Scan de redes Wi-Fi");
   int number = WiFi.scanNetworks();
   delay(500);
   if (number == -1){
