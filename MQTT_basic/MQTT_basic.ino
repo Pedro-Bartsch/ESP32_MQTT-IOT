@@ -1,32 +1,39 @@
 #include <WiFi.h>
 #include <PubSubClient.h>
 
-const String SSID = "IPhone";
+const String SSID = "iPhone";
 const String PWSD = "iot_sul_123";
 
-const String brokerUrl = "";      //URL do broker (servidor)
-const int port = 1883;            // Porta do Broker (servidor)
+const String brokerUrl = "test.mosquitto.org";      //URL do broker (servidor)
+const int port = 1883;                              // Porta do Broker (servidor)
   
-WiFiClient espClient;             // Criando Cliente WiFi
-PubSubClient mqtt(espClient);     // Criando Cliente MQTT
+WiFiClient espClient;                              // Criando Cliente WiFi
+PubSubClient mqtt(espClient);                     // Criando Cliente MQTT
 
 void connectLocalNetworks();
 
 void setup() {
   Serial.begin(115200);
   connectLocalNetworks();
+  Serial.println("Conectando ao broker");
+  mqttClient.setServer(brokerUrl.c_str(),port);
+  String userId = "ESP-PEDRO";
+  mqttClient.connect(userId.c_str());
+  while(!mqttClient.connected()) {
+    Serial.println("Erro de conexão");
+    delay(500);
+  } 
+  Serial.println("Conectado com sucesso!");
 }
+
 
 void loop() {
  // Detecta se o WiFi desconectou e tenta reconexão.
   if (WiFi.status() != WL_CONNECTED){
     Serial.println("Conexão perdida! Tentando reconexão.");
     connectLocalNetworks();
-    mqttClient.setServer(brokerUrl,port);
-    String userId = "ESP-PEDRO";
-    mqttClient.connect(userId);
-
   }
+  mqttClient.loop();
 }
 
 void connectLocalNetworks(){
