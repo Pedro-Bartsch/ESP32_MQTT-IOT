@@ -3,12 +3,18 @@
 // SSID -> Nome da rede
 // RSSI -> Intensidade do sinal
 
+void scanLocalNetworks();
+
 void setup() {
   Serial.begin(115200);
   Serial.println("Iniciando Scan de redes Wi-Fi");
+  scanLocalNetworks();
 }
 
 void loop() {
+}
+
+void scanLocalNetworks(){
   int number = WiFi.scanNetworks();
   delay(500);
   if (number == -1){
