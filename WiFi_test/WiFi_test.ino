@@ -11,17 +11,12 @@ void scanLocalNetworks();
 void setup() {
   Serial.begin(115200);
   scanLocalNetworks();
-  Serial.println("Iniciando conexão com rede WiFi");
-  WiFi.begin(SSID, PSWD);
-  
-  while (WiFi.status() != WL_CONNECTED){
-    Serial.print(".");
-    delay(200);
-  }
-  Serial.println("\nConectado com sucesso");
 }
 
 void loop() {
+  if (WiFi.status() != WL_CONNECTED){
+    connectLocalNetworks();
+  }
 }
 
 void scanLocalNetworks(){
@@ -36,4 +31,15 @@ void scanLocalNetworks(){
       Serial.printf("%d - %s | %d db\n", net, WiFi.SSID(net), WiFi.RSSI(net));
     }
   }
+}
+
+void connectLocalNetworks(){
+  Serial.println("Iniciando conexão com rede WiFi");
+  WiFi.begin(SSID, PSWD);
+  
+  while (WiFi.status() != WL_CONNECTED){
+    Serial.print(".");
+    delay(200);
+  }
+  Serial.println("\nConectado com sucesso");
 }
