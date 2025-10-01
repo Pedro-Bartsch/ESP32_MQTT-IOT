@@ -4,10 +4,11 @@
 const String SSID = "IPhone";
 const String PWSD = "iot_sul_123";
 
-const String brokerUrl = "";
-const int port = 1883;
-
-WiFiClient espClient;
+const String brokerUrl = "";      //URL do broker (servidor)
+const int port = 1883;            // Porta do Broker (servidor)
+  
+WiFiClient espClient;             // Criando Cliente WiFi
+PubSubClient mqtt(espClient);     // Criando Cliente MQTT
 
 void connectLocalNetworks();
 
@@ -21,6 +22,10 @@ void loop() {
   if (WiFi.status() != WL_CONNECTED){
     Serial.println("Conexão perdida! Tentando reconexão.");
     connectLocalNetworks();
+    mqttClient.setServer(brokerUrl,port);
+    String userId = "ESP-PEDRO";
+    mqttClient.connect(userId);
+
   }
 }
 
