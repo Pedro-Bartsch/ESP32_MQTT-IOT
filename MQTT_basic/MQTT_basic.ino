@@ -2,7 +2,7 @@
 #include <PubSubClient.h>
 
 const String SSID = "iPhone";
-const String PWSD = "iot_sul_123";
+const String PSWD = "iot_sul_123";
 
 const String brokerUrl = "test.mosquitto.org";      //URL do broker (servidor)
 const int port = 1883;                              // Porta do Broker (servidor)
@@ -17,7 +17,8 @@ void setup() {
   connectLocalNetworks();
   Serial.println("Conectando ao broker");
   mqttClient.setServer(brokerUrl.c_str(),port);
-  String userId = "ESP-PEDRO";
+  String userId = "ESP-PDRO";
+  userId += String(random(0xffff), HEX);
   mqttClient.connect(userId.c_str());
   while(!mqttClient.connected()) {
     Serial.println("Erro de conexão");
@@ -33,6 +34,7 @@ void loop() {
     Serial.println("Conexão perdida! Tentando reconexão.");
     connectLocalNetworks();
   }
+  delay(1500);
   mqttClient.loop();
 }
 
