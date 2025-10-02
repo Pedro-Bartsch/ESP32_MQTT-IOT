@@ -8,32 +8,28 @@ const String brokerUrl = "test.mosquitto.org";      //URL do broker (servidor)
 const int port = 1883;                              // Porta do Broker (servidor)
   
 WiFiClient espClient;                              // Criando Cliente WiFi
-PubSubClient mqtt(espClient);                     // Criando Cliente MQTT
+PubSubClient mqtt(mqttClient);                     // Criando Cliente MQTT
 
 void connectLocalNetworks();
 
 void setup() {
   Serial.begin(115200);
   connectLocalNetworks();
-  Serial.println("Conectando ao broker");
-  mqttClient.setServer(brokerUrl.c_str(),port);
-  String userId = "ESP-PDRO";
-  userId += String(random(0xffff), HEX);
-  mqttClient.connect(userId.c_str());
-  while(!mqttClient.connected()) {
-    Serial.println("Erro de conexão");
-    delay(500);
-  } 
-  Serial.println("Conectado com sucesso!");
+  connectBroker();
 }
 
 
 void loop() {
  // Detecta se o WiFi desconectou e tenta reconexão.
   if (WiFi.status() != WL_CONNECTED){
-    Serial.println("Conexão perdida! Tentando reconexão.");
+    Serial.println("Conexão WiFi perdida! Tentando reconexão...");
     connectLocalNetworks();
   }
+  if (mqtt != connected()) {
+    Serial.println("MQTT desconectado! Tentando reconexão...");
+    connectBroker();
+  }
+
   delay(1500);
   mqttClient.loop();
 }
@@ -51,4 +47,31 @@ void connectLocalNetworks(){
   } else{
     Serial.println("\nFalha ao conectar.");
   }
+}
+
+void connectBroker() {
+  mqtt.setServer(brokerUrl, port);
+
+  Serial.println("Conectando ao broker");
+  Serial.println(brokerUrl);
+  
+  String userId = "ESP-PDRO";
+  userId += String(random(0xffff), HEX);
+  
+  mqttClient.setServer(brokerUrl.c_str(),port);
+  
+  mqttClient.connect(userId.c_str());
+  while(!mqttClient.connected()) {
+    Serial.println("Erro de conexão");
+    delay(500);
+  } 
+  if (mqtt.connect(userId.c_str)) {
+
+  Serial.println("Conectado ao broker com sucesso!");
+  } else{
+      Serial.print("Falha, rc=");
+      Serial.print(mqtt.state());
+      Serial.println(" Tentando novamente...")
+      delay(1000);
+    }
 }
