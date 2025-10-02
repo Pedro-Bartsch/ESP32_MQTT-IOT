@@ -8,13 +8,13 @@ const String brokerUrl = "test.mosquitto.org";      //URL do broker (servidor)
 const int port = 1883;                              // Porta do Broker (servidor)
   
 WiFiClient espClient;                              // Criando Cliente WiFi
-PubSubClient mqtt(mqttClient);                     // Criando Cliente MQTT
+PubSubClient mqtt(espClient);                     // Criando Cliente MQTT
 
-void connectLocalNetworks();
+void connectWifi();
 
 void setup() {
   Serial.begin(115200);
-  connectLocalNetworks();
+  connectWifi();
   connectBroker();
 }
 
@@ -23,18 +23,23 @@ void loop() {
  // Detecta se o WiFi desconectou e tenta reconexão.
   if (WiFi.status() != WL_CONNECTED){
     Serial.println("Conexão WiFi perdida! Tentando reconexão...");
-    connectLocalNetworks();
+    connectWifi();
   }
-  if (mqtt != connected()) {
+  if (!mqttClient.connected()) {
     Serial.println("MQTT desconectado! Tentando reconexão...");
     connectBroker();
   }
-
+  if(Serial.available() > 0){
+    String msg = Serial.readStringUntil('\n');
+    msg = "Pedro: " + msg;
+    mqttClient.publish("AulaIoTSul/Chat", msg.c_str());
+  }
   delay(1500);
-  mqttClient.loop();
+
+  mqtt.loop();
 }
 
-void connectLocalNetworks(){
+void connectWifi(){
   Serial.println("Iniciando conexão com rede WiFi");
   WiFi.begin(SSID, PSWD);
   
@@ -64,14 +69,19 @@ void connectBroker() {
   while(!mqttClient.connected()) {
     Serial.println("Erro de conexão");
     delay(500);
-  } 
-  if (mqtt.connect(userId.c_str)) {
+  }
+  mqtt.subscribe("AulaIoTSul/Chat");
+  mqtt.setCallback(callback);
+  Serial.println("Conectado ao broker com sucesso!"); 
+}
 
-  Serial.println("Conectado ao broker com sucesso!");
-  } else{
-      Serial.print("Falha, rc=");
-      Serial.print(mqtt.state());
-      Serial.println(" Tentando novamente...")
-      delay(1000);
-    }
+void callback(char* topic, byte* payload, unsigned long length){
+  String resposta = "";
+  for(int i = 0; i < length; i++){
+    resposta += (char) payload[i];
+  }
+  Serial.print("Mensagem recebida [");
+  Serial.print(topic);
+  Serial.print("]: ");
+  Serial.println(resposta);
 }
